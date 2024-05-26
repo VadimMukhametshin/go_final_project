@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const DateFormat = "20060102"
+
 type Task struct {
 	ID      string `json:"id"`
 	Date    string `json:"date"`
@@ -24,7 +26,7 @@ var (
 func NextDate(now time.Time, startDate string, repeat string) (string, error) {
 
 	repeat = strings.ToLower(strings.TrimSpace(repeat))
-	startDt, err := time.Parse("20060102", startDate)
+	startDt, err := time.Parse(DateFormat, startDate)
 	if err != nil {
 		return "", fmt.Errorf("%w: unexpected date value", ErrFormat)
 	}
@@ -53,7 +55,7 @@ func NextDate(now time.Time, startDate string, repeat string) (string, error) {
 		return "", fmt.Errorf("%w: unexpected repeat value", ErrFormat)
 
 	}
-	return nextDate.Format("20060102"), nil
+	return nextDate.Format(DateFormat), nil
 }
 
 func validateData(tsk *Task) error {
@@ -63,10 +65,10 @@ func validateData(tsk *Task) error {
 	}
 
 	if tsk.Date == "" {
-		tsk.Date = time.Now().Format("20060102")
+		tsk.Date = time.Now().Format(DateFormat)
 	}
 
-	_, err := time.Parse("20060102", tsk.Date)
+	_, err := time.Parse(DateFormat, tsk.Date)
 	if err != nil {
 		return fmt.Errorf("%w: wrong data format", ErrFormat)
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"go-final-project/internal/task"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -51,7 +52,7 @@ func (a *Api) TaskCreate(w http.ResponseWriter, r *http.Request) {
 func (a *Api) NextDate(w http.ResponseWriter, r *http.Request) {
 
 	nowStr := r.FormValue("now")
-	now, err := time.Parse("20060102", nowStr)
+	now, err := time.Parse(task.DateFormat, nowStr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -63,8 +64,13 @@ func (a *Api) NextDate(w http.ResponseWriter, r *http.Request) {
 	nextDate, err := task.NextDate(now, date, repeat)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-	} else {
-		w.Write([]byte(nextDate))
+		return
+	}
+
+	_, err = w.Write([]byte(nextDate))
+	if err != nil {
+		log.Printf("failed to write response: %v", err)
+		return
 	}
 
 }

@@ -1,18 +1,18 @@
 package main
 
 import (
-	"go-final-project/internal/api"
-	"go-final-project/internal/config"
-	"go-final-project/internal/repository"
-	"go-final-project/internal/sqlidb"
-	"go-final-project/internal/task"
-
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	_ "modernc.org/sqlite"
+
+	"go-final-project/internal/api"
+	"go-final-project/internal/config"
+	"go-final-project/internal/repository"
+	"go-final-project/internal/sqlidb"
+	"go-final-project/internal/task"
 )
 
 func main() {
@@ -38,7 +38,6 @@ func main() {
 	webDir := filepath.Join(curDir, "web/")
 	mux := http.NewServeMux()
 
-	//http.Handle("/", http.FileServer(http.Dir(webDir)))
 	mux.Handle("/", http.FileServer(http.Dir(webDir)))
 	mux.HandleFunc("GET /api/nextdate", api.NextDate)
 	mux.HandleFunc("POST /api/task", api.TaskCreate)
@@ -47,6 +46,8 @@ func main() {
 	mux.HandleFunc("PUT /api/task", api.UpdateTask)
 	mux.HandleFunc("POST /api/task/done", api.TaskDone)
 	mux.HandleFunc("DELETE /api/task", api.TaskDelete)
+
+	log.Printf("Сервер запущен на порту %s\n", cfg.Port)
 
 	log.Fatal(http.ListenAndServe(cfg.Port, mux))
 }

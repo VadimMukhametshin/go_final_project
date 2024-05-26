@@ -30,7 +30,7 @@ func (s *Service) Create(tsk Task) (int, error) {
 	}
 
 	if tsk.Repeat == "" || tsk.Repeat == " " {
-		tsk.Date = time.Now().Format("20060102")
+		tsk.Date = time.Now().Format(DateFormat)
 		taskID, err := s.repo.TaskAdd(tsk)
 		if err != nil {
 			return 0, fmt.Errorf("task - Create: %w", err)
@@ -40,7 +40,7 @@ func (s *Service) Create(tsk Task) (int, error) {
 	}
 	now := time.Now().Truncate(24 * time.Hour)
 
-	nowText := now.Format("20060102")
+	nowText := now.Format(DateFormat)
 	if tsk.Date < nowText {
 		tsk.Date, err = NextDate(now, tsk.Date, tsk.Repeat)
 		if err != nil {
@@ -83,7 +83,7 @@ func (s *Service) UpdateTask(tsk Task) error {
 	}
 
 	if tsk.Repeat == "" || tsk.Repeat == " " {
-		tsk.Date = time.Now().Format("20060102")
+		tsk.Date = time.Now().Format(DateFormat)
 		err := s.repo.TaskUpdate(tsk)
 		if err != nil {
 			return fmt.Errorf("task - Update: %w", err)
@@ -92,7 +92,7 @@ func (s *Service) UpdateTask(tsk Task) error {
 	}
 	now := time.Now().Truncate(24 * time.Hour)
 
-	nowText := now.Format("20060102")
+	nowText := now.Format(DateFormat)
 	if tsk.Date < nowText {
 		tsk.Date, err = NextDate(now, tsk.Date, tsk.Repeat)
 		if err != nil {

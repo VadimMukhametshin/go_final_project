@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"go-final-project/internal/task"
+	"log"
 )
 
 type Repository struct {
@@ -33,25 +34,31 @@ func (r *Repository) TaskAdd(t task.Task) (int, error) {
 }
 
 func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
+	const limit = 10
 	tasks := []task.Task{}
 
 	search = `%` + search + `%`
 
-	rows, err := r.db.Query(`SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date ASC LIMIT 10;`,
+	rows, err := r.db.Query(`SELECT * FROM scheduler WHERE title LIKE :search OR comment LIKE :search ORDER BY date ASC LIMIT :limit;`,
 		sql.Named("search", search),
+		sql.Named("limit", limit),
 	)
 	if err != nil {
 		return []task.Task{}, fmt.Errorf("wrong query to db: %w", err)
 	}
-	defer rows.Close()
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Println("rows close error:", err)
+		}
+	}()
 
 	for rows.Next() {
-		err := rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat)
+		err = rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat)
 		if err != nil {
 			return tasks, fmt.Errorf("scan rows err: %w", err)
 		}
 		tasks = append(tasks, t)
-
 	}
 
 	return tasks, nil
