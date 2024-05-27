@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+
 	"go-final-project/internal/task"
-	"log"
 )
+
+const limit = 10
 
 type Repository struct {
 	db *sql.DB
@@ -34,7 +36,7 @@ func (r *Repository) TaskAdd(t task.Task) (int, error) {
 }
 
 func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
-	const limit = 10
+
 	tasks := []task.Task{}
 
 	search = `%` + search + `%`
@@ -46,12 +48,6 @@ func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
 	if err != nil {
 		return []task.Task{}, fmt.Errorf("wrong query to db: %w", err)
 	}
-	defer func() {
-		err = rows.Close()
-		if err != nil {
-			log.Println("rows close error:", err)
-		}
-	}()
 
 	for rows.Next() {
 		err = rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat)
@@ -59,6 +55,11 @@ func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
 			return tasks, fmt.Errorf("scan rows err: %w", err)
 		}
 		tasks = append(tasks, t)
+	}
+
+	err = rows.Close()
+	if err != nil {
+		return nil, fmt.Errorf("rows close error:w", err)
 	}
 
 	return tasks, nil

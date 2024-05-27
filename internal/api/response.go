@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"go-final-project/internal/task"
 	"io"
 	"log"
 	"net/http"
+
+	"go-final-project/internal/task"
 )
 
 type errResponse struct {
