@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 
 	"go-final-project/internal/task"
 )
@@ -49,6 +50,13 @@ func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
 		return []task.Task{}, fmt.Errorf("wrong query to db: %w", err)
 	}
 
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Println("rows close error:", err)
+		}
+	}()
+
 	for rows.Next() {
 		err = rows.Scan(&t.ID, &t.Date, &t.Title, &t.Comment, &t.Repeat)
 		if err != nil {
@@ -57,9 +65,8 @@ func (r *Repository) TasksGet(t task.Task, search string) ([]task.Task, error) {
 		tasks = append(tasks, t)
 	}
 
-	err = rows.Close()
-	if err != nil {
-		return nil, fmt.Errorf("rows close error:w", err)
+	if err = rows.Err(); err != nil {
+		return tasks, fmt.Errorf("rows err: %w", err)
 	}
 
 	return tasks, nil
